@@ -17,4 +17,32 @@ let url_all_databases =
 let url_status = 
   url true [ "_active_tasks" ]
 
+(** A typical replication request payload for the specified database. *)
+let replication_request_payload db = 
+  Json.(Object [
+    "source", String (url false [db]) ;
+    "target", String db ;
+    "create_target", Bool true ;
+  ]) 
+
+(** The local database status, describes how many tasks are running
+    that might prevent full replication or backup generation. *)
+type status = {
+  compaction  : int ;
+  replication : int ;
+}
+
+(** From a "tasks" payload returned by the active tasks API, computes
+    the current database status. *)
+let status_of_tasks json = 
+  let types = Json.(to_list (to_object (fun ~opt ~req -> to_string (req "type"))) json) in
+  List.fold_left 
+    (fun status -> function 
+      | "database_compaction" -> { status with compaction = status.compaction + 1 }
+      | "replication" -> { status with replication = status.replication +1 }
+      | _ -> status) 
+    { compaction = 0 ; replication = 0 } 
+    types
+
+
 

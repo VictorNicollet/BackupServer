@@ -17,11 +17,12 @@ Connect to the production server as the `backup` user, append the public key to 
 As root, make sure the necessary elements are present. On a Debian system, for example: 
 
     apt-get install \
+      git \
       make \
       ocaml-nox \
       libocamlnet-ocaml-dev \
       libcurl-ocaml-dev \
-      libbatteries-ocaml-dev \ 
+      libbatteries-ocaml-dev \
       couchdb \
       daemontools 
 
@@ -29,18 +30,9 @@ Fetch the code from GitHub:
 
     git clone git://github.com/RunOrg/BackupServer.git
 
-Paste the Pacemkr beat URL (`http://pacemkr.com/beat/...`) into file 
-`config.ml` at the appropriate location, then make everything:
+Complete the `config.ml` file, then make everything:
 
     make -C BackupServer
-
-Configure the regular expressions (globs, actually) in the filter
-file, to select which databases should be used: 
-
-    # Save every database that starts with prod- ...
-    + prod-*
-    # ... except this one
-    - prod-do-not-backup
 
 ## Running the software
 

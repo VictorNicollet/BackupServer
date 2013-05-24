@@ -44,6 +44,9 @@ file, to select which databases should be used:
 
 ## Running the software
 
+Also as root (or any user that has access to the CouchDB files and
+to the destination folder `/var/backups/couchdb`).
+ 
 Use a watchdog:
 
     supervise BackupServer

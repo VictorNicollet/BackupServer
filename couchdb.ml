@@ -17,6 +17,10 @@ let url_all_databases =
 let url_status = 
   url true [ "_active_tasks" ]
 
+(** The compaction url for a specific database. *)
+let url_compact db = 
+  url true [ db ; "_compact" ]
+
 (** A typical replication request payload for the specified database. *)
 let replication_request_payload db = 
   Json.(Object [
@@ -35,6 +39,14 @@ type status = {
   compaction  : int ;
   replication : int ;
 }
+
+(** Is a status "idle" ? *)
+let idle_status status = 
+  status.compaction = 0 && status.replication = 0
+
+(** Print a status *)
+let string_of_status status = 
+  Printf.sprintf "Compaction: %d, Replication: %d" status.compaction status.replication
 
 (** From a "tasks" payload returned by the active tasks API, computes
     the current database status. *)
@@ -77,6 +89,11 @@ let run_replication_request db =
   Log.info "Start replication : %s" db ;
   let payload = replication_request_payload db in 
   run_local_post_query url_replicate payload 
+
+(** Run a local compaction query for the specified database. *)
+let run_compaction_request db = 
+  Log.info "Start compaction : %s" db ;
+  run_local_post_query (url_compact db) Json.Null
 
 (** Query the current status. *)
 let query_current_status () = 

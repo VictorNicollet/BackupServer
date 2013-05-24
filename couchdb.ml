@@ -61,8 +61,20 @@ let run_local_get_query url =
   let result = Http_client.Convenience.http_get url in
   Json.unserialize result
 
+(** Run a remote query, parse the result as JSON. If the connection
+    fails, retry it after opening the SSH tunnel. *)
+let run_remote_get_query url = 
+  try run_local_get_query url with _ -> 
+    Ssh.create_tunnel () ;
+    run_local_get_query url 
+
 (** Run a local replication query for the specified database. *)
 let run_replication_request db = 
   Log.info "Start replication : %s" db ;
   let payload = replication_request_payload db in 
   run_local_post_query url_replicate payload 
+
+(** Query the current status. *)
+let query_current_status () = 
+  status_of_tasks (run_local_get_query url_status) 
+

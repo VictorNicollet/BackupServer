@@ -8,6 +8,8 @@ let rec wait_for_idle_database () =
     wait_for_idle_database ())
 
 let rec start () = 
+
+  (* Always get a fresh list of databases from production server. *)
   let databases = Couchdb.query_all_databases () in
   let databases = List.filter Config.filter_database databases in 
 
@@ -19,7 +21,13 @@ let rec start () =
   List.iter Couchdb.run_compaction_request databases ;
   wait_for_idle_database () ;
 
-  () 
+  (* Create the backup for today if it does not exist yet. *)
+  if not (Tar.current_backup_exists ()) then Tar.create_backup databases ;
+
+  (* Run again in 30 minutes. *)
+  Log.trace "Sleeping..." ;
+  Unix.sleep 1800 ;
+  start () 
 
 let () = 
   start ()

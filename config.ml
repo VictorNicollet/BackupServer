@@ -3,7 +3,13 @@
 (** Source server and user. This is where the remote CouchDB database runs. *)
 let remote_couchdb_server = "backups@prod-01.runorg.com"
 
-(** Database filtr *)
+(** Where to store the backups. *)
+let backup_location = "/var/backups/couchdb" 
+
+(** Where to find CouchDB files. *)
+let database_file db = "/var/lib/couchdb/1.1.1/" ^ db ^ ".couch"
+
+(** Database filter *)
 let filter_database db = 
   BatString.starts_with db "dev-" 
   && not (List.mem db [

@@ -25,6 +25,10 @@ let replication_request_payload db =
     "create_target", Bool true ;
   ]) 
 
+(** Parse a list of databases returned by an "all databases" query. *)
+let parse_all_databases json = 
+  Json.(to_list to_string json)
+
 (** The local database status, describes how many tasks are running
     that might prevent full replication or backup generation. *)
 type status = {
@@ -77,4 +81,8 @@ let run_replication_request db =
 (** Query the current status. *)
 let query_current_status () = 
   status_of_tasks (run_local_get_query url_status) 
+
+(** Query the list of databases on the remote server. *)
+let query_all_databases () = 
+  parse_all_databases (run_remote_get_query url_all_databases)
 

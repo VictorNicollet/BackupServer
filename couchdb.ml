@@ -46,8 +46,8 @@ let status_of_tasks json =
 
 (** Run an HTTP POST request with some JSON. Does not handle errors
     that might occur. *)
-let run_local_post_query post url = 
-  Log.info "POST %s" url ;
+let run_local_post_query url post = 
+  Log.trace "POST %s" url ;
   let body = Json.serialize post in 
   let call = new Http_client.post_raw url body in 
   (call # request_header `Base) # update_field "Content-Type" "application/json" ;
@@ -57,8 +57,12 @@ let run_local_post_query post url =
 
 (** Run a local query, parse the result as JSON *)
 let run_local_get_query url =
-  Log.info "GET %s" url ;
+  Log.trace "GET %s" url ;
   let result = Http_client.Convenience.http_get url in
   Json.unserialize result
 
-
+(** Run a local replication query for the specified database. *)
+let run_replication_request db = 
+  Log.info "Start replication : %s" db ;
+  let payload = replication_request_payload db in 
+  run_local_post_query url_replicate payload 

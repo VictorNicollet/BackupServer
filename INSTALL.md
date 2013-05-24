@@ -46,4 +46,4 @@ file, to select which databases should be used:
 
 Use a watchdog:
 
-   supervise BackupServer
+    supervise BackupServer

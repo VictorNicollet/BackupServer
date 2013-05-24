@@ -18,6 +18,8 @@ let filter_database db =
   && not (List.mem db [
     "prod-alog" ;
     "prod-async" ;
+    "prod-account-line" ;
+    "prod-account-line-v" ;
     "prod-audit-profile" ;
     "prod-avatar-grid-u" ;
     "prod-avatar-grid-l" ;

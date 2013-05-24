@@ -7,7 +7,9 @@ let rec wait_for_idle_database () =
     Unix.sleep 5 ;
     wait_for_idle_database ())
 
-let rec start () = 
+let rec loop () = 
+
+  let start = Unix.gettimeofday () in 
 
   (* Always get a fresh list of databases from production server. *)
   let databases = Couchdb.query_all_databases () in
@@ -21,15 +23,23 @@ let rec start () =
   List.iter Couchdb.run_compaction_request databases ;
   wait_for_idle_database () ;
 
+  let delta = Unix.gettimeofday () -. start in
+  Pacemkr.send_replication_finished (List.length databases) delta ; 
+
   (* Create the backup for today if it does not exist yet. *)
-  if not (Tar.current_backup_exists ()) then Tar.create_backup databases ;
+  if not (Tar.current_backup_exists ()) then begin 
+    let start = Unix.gettimeofday () in 
+    let size = Tar.create_backup databases in
+    let delta = Unix.gettimeofday () -. start in 
+    Pacemkr.send_archive_finished (List.length databases) delta size 
+  end ; 
 
   (* Run again in 30 minutes. *)
   Log.trace "Sleeping..." ;
   Unix.sleep 1800 ;
-  start () 
+  loop () 
 
 let () = 
-  start ()
+  loop ()
   
   

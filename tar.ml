@@ -24,5 +24,6 @@ let create_backup databases =
   Log.info "Create backup %s" file ;
   let command = creation_command file databases in
   let result = Sys.command command in 
-  if result <> 0 then (Log.error "Backup creation failed" ; assert false) 
-
+  if result <> 0 then (Log.error "Backup creation failed" ; assert false) else
+    let stat = Unix.stat file in 
+    stat.Unix.st_size / 1024 / 1024 
